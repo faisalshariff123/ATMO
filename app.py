@@ -84,7 +84,7 @@ def update_metrics(now, dt, p, alt):
     if alt > ALOFT_M:
         S["aloft"] += dt
 
-    # hover quality: spread of height over the last 10 s while holding still
+    # hover quality: spread of height over the last 10 s while holding still (mine probably sucks cuz of the way its built)
     S["hover"] = None
     if len(series) >= 20 and alt > 0.5 and abs(vs) < HOLD_VS:
         recent = [r[1] for r in list(series)[-20:]]

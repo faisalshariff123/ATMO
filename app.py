@@ -303,7 +303,7 @@ def local_summary(sn):
     return (f"The sensor is {abs(a):.1f} m {'above' if a >= 0 else 'below'} where you zeroed it, "
             f"and the air pressure is {sn['p']:.1f} hPa. {tr} {sn['fc']['text']}")
 
-
+# for obvious reasons you would need an active internet connection for this which could be challenging when youre high in the air.
 def gemini(prompt):
     body = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode()
     req = urllib.request.Request(

@@ -4,7 +4,8 @@ A Raspberry Pi 5 + barometer payload for drones. It turns air pressure into live
 
 Built at Cal Hacks 13.0.
 
-![dashboard](docs/dashboard-light.png)
+![Uploading Screenshot 2026-10-24 at 1.49.38 AM.png…]()
+
 
 ## What it does
 - Live height above your start point, vertical speed, and a 20 min pressure trace

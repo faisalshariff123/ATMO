@@ -20,6 +20,15 @@ Built at Cal Hacks 13.0.
 - Grove Barometer SPA06-003 (I2C 0x77)
 - Optional Grove 16x2 LCD (skipped automatically if missing)
 
+<img width="4032" height="2268" alt="IMG_0521" src="https://github.com/user-attachments/assets/f7324045-07b4-4289-bba4-43506dda6428" />
+<img width="4032" height="2268" alt="IMG_0522" src="https://github.com/user-attachments/assets/eaded780-c06c-49fd-ab1c-c06693c25ab8" />
+
+
+https://github.com/user-attachments/assets/5c019709-9b06-4002-9f74-1fdf05a27e0d
+
+
+
+
 ## Setup
 On the Pi:
 ```bash

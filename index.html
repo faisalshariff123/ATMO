@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>ATMO</title>
+<style>
+:root{
+ --paper:#efeae0;--ink:#16130f;--mute:#6b6356;--rule:#cdc5b5;
+ --signal:#e0450b;--good:#2e6a3e;--warn:#9c5f08;--bad:#b0241c;--idle:#6b6356;
+ --font-body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ --font-display:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root{
+ --paper:#14120f;--ink:#efe9dc;--mute:#9a9283;--rule:#35302a;
+ --signal:#ff6a2b;--good:#6fcf8a;--warn:#e7ad4a;--bad:#ff7a6e;--idle:#9a9283;}}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:clip}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--font-body);min-height:100vh}
+.wrap{max-width:1240px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 48px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--rule)}
+.id{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;min-width:0}
+.mark{font:600 28px/1 var(--font-display)}
+.state{color:var(--mute);font-size:14px;min-width:0;overflow-wrap:break-word}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:none;border:1px solid var(--ink);color:var(--ink);font:600 14px var(--font-body);padding:9px 14px;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn:focus-visible,.win button:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+.main{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,4vw,64px);padding-top:26px}
+.fcrow{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,4vw,64px);margin-top:34px;padding-top:22px;border-top:1px solid var(--rule)}
+@media (max-width:900px){.main,.fcrow{grid-template-columns:minmax(0,1fr)}}
+.left,.right,.fcl,.fcr{min-width:0}
+.lab{font-size:13px;color:var(--mute)}
+.height{font:300 clamp(88px,15vw,196px)/.92 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.04em;margin:6px 0 10px;overflow-wrap:break-word;min-width:0}
+.height .u{font-size:.2em;color:var(--mute);letter-spacing:0;margin-left:.2em}
+.win{display:flex;gap:18px;margin:6px 0 2px}
+.win button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:14px var(--font-body);padding:4px 0;cursor:pointer}
+.win button[aria-pressed=true]{color:var(--ink);border-bottom-color:var(--signal)}
+.plot{display:block;width:100%}
+.strip{height:190px;margin-top:6px}
+.pstrip{height:220px;margin-top:6px}
+.reads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;border-top:1px solid var(--rule);margin-top:18px;padding-top:14px}
+@media (max-width:600px){.reads{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.reads b{display:block;font:500 22px var(--font-body);font-variant-numeric:tabular-nums}
+.sk{display:block;width:100%;height:30px;margin-top:6px}
+.lapse{margin-top:12px;color:var(--mute);font-size:14px;max-width:46ch}
+.vs{font:300 clamp(56px,9vw,112px)/.95 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.04em;margin:6px 0 22px;overflow-wrap:break-word;min-width:0}
+.vs .u{font-size:.2em;color:var(--mute);letter-spacing:0;margin-left:.2em}
+.metrics{margin-top:34px;padding-top:18px;border-top:1px solid var(--rule)}
+.mrow{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(4,minmax(0,1fr));gap:20px;margin-top:10px}
+@media (max-width:900px){.mrow{grid-template-columns:repeat(2,minmax(0,1fr))}.m:first-child{grid-column:span 2}}
+.m{min-width:0}
+.m b{display:block;font:500 clamp(24px,3vw,34px)/1.15 var(--font-body);font-variant-numeric:tabular-nums;margin-top:4px;overflow-wrap:break-word;min-width:0}
+.m:first-child b{font-size:clamp(34px,4.6vw,56px);font-weight:400}
+.m b[data-tone=good]{color:var(--good)}
+.m b[data-tone=idle]{color:var(--ink)}
+.m b[data-tone=warn]{color:var(--warn)}
+.m b[data-tone=bad]{color:var(--bad)}
+.cap{display:block;color:var(--mute);font-size:13px;margin-top:2px;overflow-wrap:break-word}
+.say{font:500 clamp(30px,4.2vw,46px)/1.1 var(--font-display);overflow-wrap:break-word;min-width:0;margin:6px 0 8px}
+.say[data-tone=good]{color:var(--good)}
+.say[data-tone=warn]{color:var(--warn)}
+.say[data-tone=bad]{color:var(--bad)}
+.say[data-tone=idle]{color:var(--idle)}
+.why{max-width:48ch}
+.rate{font:500 20px var(--font-body);font-variant-numeric:tabular-nums;margin-top:8px}
+.ruler{display:block;width:100%;height:auto}
+.plainrow{margin-top:26px;padding-top:18px;border-top:1px solid var(--rule)}
+.plain{max-width:62ch;margin-top:4px}
+.foot{margin-top:30px;color:var(--mute);font-size:13px;max-width:70ch}
+svg text{font:12px var(--font-body);fill:var(--mute)}
+.grid{stroke:var(--rule);stroke-width:1}
+.zero{stroke:var(--ink);stroke-width:1}
+.axis{stroke:var(--ink);stroke-width:1.5}
+.trace{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.tl{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.spark{fill:none;stroke:var(--ink);stroke-width:1.5}
+.ref{stroke:var(--mute);stroke-width:1.5;stroke-dasharray:4 4}
+.now,.mk{fill:var(--signal)}
+.nowt{fill:var(--ink);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header class="top">
+  <div class="id"><span class="mark">atmo</span><span class="state" id="state">Connecting to the Pi</span></div>
+  <div class="acts">
+   <button class="btn" id="zero">Zero here</button>
+   <button class="btn" id="pause">Pause</button>
+   <a class="btn" href="/api/log">Save log</a>
+  </div>
+ </header>
+ <noscript><p class="foot">This page draws live readings with JavaScript.</p></noscript>
+ <main class="main">
+  <section class="left">
+   <p class="lab">Height above where you zeroed</p>
+   <h1 class="height" id="h">0.00<span class="u">m</span></h1>
+   <div class="win" id="win" role="group" aria-label="Time window">
+    <button data-w="120" aria-pressed="true">2 min</button>
+    <button data-w="600" aria-pressed="false">10 min</button>
+    <button data-w="1200" aria-pressed="false">20 min</button>
+   </div>
+   <svg id="strip" class="plot strip" role="img" aria-label="Height over time"></svg>
+   <div class="reads">
+    <div><p class="lab">Highest</p><b id="mx">0.00 m</b></div>
+    <div><p class="lab">Lowest</p><b id="mn">0.00 m</b></div>
+    <div><p class="lab">Pressure</p><b id="pv">0.00 hPa</b><svg id="sp" class="sk"></svg></div>
+    <div><p class="lab">Session</p><b id="ss">0:00</b></div>
+   </div>
+  </section>
+  <section class="right">
+   <p class="lab">Vertical speed</p>
+   <p class="vs" id="vs">0.00<span class="u">m/s</span></p>
+   <p class="lab">Pressure, last 20 minutes</p>
+   <svg id="pstrip" class="plot pstrip" role="img" aria-label="Pressure over the last 20 minutes"></svg>
+   <p class="lapse">Pressure is the real signal here. Height and vertical speed are computed from it.</p>
+  </section>
+ </main>
+ <section class="metrics" aria-label="Flight metrics">
+  <p class="lab">Flight metrics</p>
+  <div class="mrow">
+   <div class="m"><p class="lab">Air disturbance</p><b id="m1" data-tone="good">calm</b><span class="cap" id="c1">waiting for readings</span></div>
+   <div class="m"><p class="lab">Hover quality</p><b id="m2">waiting</b><span class="cap" id="c2">hold still above 0.5 m for 10 s</span></div>
+   <div class="m"><p class="lab">Max climb rate</p><b id="m3">0.00 m/s</b><span class="cap" id="c3">max sink 0.00 m/s</span></div>
+   <div class="m"><p class="lab">Total ascent</p><b id="m4">0.0 m up</b><span class="cap" id="c4">0.0 m down</span></div>
+   <div class="m"><p class="lab">Time aloft</p><b id="m5">0:00</b><span class="cap" id="c5">on the ground</span></div>
+  </div>
+ </section>
+ <section class="fcrow">
+  <div class="fcl">
+   <p class="lab">Pressure trend</p>
+   <h2 class="say" id="say" data-tone="idle">Calibrating</h2>
+   <p class="why" id="why">Collecting pressure history.</p>
+  </div>
+  <div class="fcr">
+   <svg id="ruler" class="ruler" role="img" aria-label="Pressure tendency"></svg>
+   <p class="rate" id="rate">Building a trend</p>
+  </div>
+ </section>
+ <section class="plainrow">
+  <p class="lab">In plain words</p>
+  <p class="plain" id="plain">Waiting for the first readings.</p>
+ </section>
+ <p class="foot">Works offline. The forecast is a pressure-trend rule of thumb, not a weather model.</p>
+</div>
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var NS='http://www.w3.org/2000/svg';
+var win=120,frozen=false,last=null,prof=null;
+function el(tag,a,txt){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e}
+function clear(n){while(n.firstChild)n.removeChild(n.firstChild)}
+function size(svg,dw,dh){var r=svg.getBoundingClientRect();var w=Math.round(r.width)||dw,h=Math.round(r.height)||dh;svg.setAttribute('viewBox','0 0 '+w+' '+h);clear(svg);return [w,h]}
+function fmt(v,d){return (v<0?'−':'')+Math.abs(v).toFixed(d)}
+function sfmt(v,d){return (v<0?'−':'+')+Math.abs(v).toFixed(d)}
+function mmss(s){s=Math.floor(s);var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
+function nice(span,target){var raw=span/target,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;return (f<1.5?1:f<3?2:f<7?5:10)*p}
+function ticks(lo,hi,n){var st=nice(hi-lo,n),t=[],v=Math.ceil(lo/st)*st;for(;v<=hi+1e-9;v+=st)t.push(+v.toFixed(6));return {t:t,st:st}}
+function dec(st){return st>=1?0:st>=0.1?1:st>=0.01?2:3}
+function range(vals,minSpan,pad){var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),sp=hi-lo;if(sp<minSpan){var c=(hi+lo)/2;lo=c-minSpan/2;hi=c+minSpan/2;sp=minSpan}return [lo-sp*pad,hi+sp*pad]}
+
+function strip(svg,pts,idx,win,minSpan,zeroLine){
+ var wh=size(svg,600,190),W=wh[0],H=wh[1],L=44,R=10,T=8,B=24;
+ var t1=pts[pts.length-1][0],vals=pts.map(function(r){return r[idx]});
+ var rg=range(vals,minSpan,0.12),lo=rg[0],hi=rg[1];
+ function X(v){return L+(v+win)/win*(W-L-R)}
+ function Y(v){return T+(1-(v-lo)/(hi-lo))*(H-T-B)}
+ var tk=ticks(lo,hi,4),dd=dec(tk.st);
+ tk.t.forEach(function(v){svg.appendChild(el('line',{x1:L,x2:W-R,y1:Y(v),y2:Y(v),class:'grid'}));svg.appendChild(el('text',{x:L-8,y:Y(v)+4,'text-anchor':'end'},fmt(v,dd)))});
+ if(zeroLine&&lo<0&&hi>0)svg.appendChild(el('line',{x1:L,x2:W-R,y1:Y(0),y2:Y(0),class:'zero'}));
+ var n=win>=1200?4:win>=600?5:2;
+ for(var k=0;k<=n;k++){var v=-win+k*win/n;svg.appendChild(el('text',{x:X(v),y:H-6,'text-anchor':k===0?'start':k===n?'end':'middle'},k===n?'now':'−'+Math.round(-v/60)+' min'))}
+ var d='';pts.forEach(function(r,i){d+=(i?'L':'M')+X(r[0]-t1).toFixed(1)+' '+Y(r[idx]).toFixed(1)});
+ svg.appendChild(el('path',{d:d,class:'trace'}));
+ svg.appendChild(el('circle',{cx:X(0),cy:Y(vals[vals.length-1]),r:4,class:'now'}));
+}
+function spark(svg,pts,idx,ms){
+ var wh=size(svg,100,30),W=wh[0],H=wh[1],v=pts.map(function(r){return r[idx]}),rg=range(v,ms,0.1),d='';
+ pts.forEach(function(r,i){var x=i/(pts.length-1)*(W-4)+2,y=2+(1-(r[idx]-rg[0])/(rg[1]-rg[0]))*(H-4);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)});
+ svg.appendChild(el('path',{d:d,class:'spark'}));
+}
+function vspeed(pts){
+ var n=pts.length;if(n<2)return null;
+ var t1=pts[n-1][0],i=n-1;
+ while(i>0&&t1-pts[i][0]<6)i--;
+ var dt=t1-pts[i][0];if(dt<1)return null;
+ return (pts[n-1][1]-pts[i][1])/dt;
+}
+function ruler(r){
+ var svg=$('#ruler'),W=360,H=44;clear(svg);svg.setAttribute('viewBox','0 0 '+W+' '+H);
+ function X(v){return 12+(Math.max(-6,Math.min(6,v))+6)/12*(W-24)}
+ svg.appendChild(el('line',{x1:X(-6),x2:X(6),y1:18,y2:18,class:'axis'}));
+ [-6,-3.6,-1.6,0,1.6,3.6,6].forEach(function(v){svg.appendChild(el('line',{x1:X(v),x2:X(v),y1:13,y2:23,class:'axis'}))});
+ svg.appendChild(el('text',{x:X(-6),y:40,'text-anchor':'start'},'falling'));
+ svg.appendChild(el('text',{x:X(0),y:40,'text-anchor':'middle'},'steady'));
+ svg.appendChild(el('text',{x:X(6),y:40,'text-anchor':'end'},'rising'));
+ if(r!=null){var x=X(r);svg.appendChild(el('polygon',{points:(x-7)+',0 '+(x+7)+',0 '+x+',13',class:'mk'}))}
+}
+function renderMain(s){
+ if(!s.ready){$('#state').textContent='Sensor warming up';return}
+ var a=s.alt;
+ $('#h').firstChild.nodeValue=(a>=0.005?'+':a<=-0.005?'−':'')+Math.abs(a).toFixed(2);
+ $('#mx').textContent=s.max.toFixed(2)+' m';
+ $('#mn').textContent=fmt(s.min,2)+' m';
+ $('#pv').textContent=s.p.toFixed(2)+' hPa';
+ $('#ss').textContent=mmss(s.dur);
+ $('#state').textContent=(s.ok?'Sensor live':'Sensor error')+', session '+mmss(s.dur)+', '+s.n+' samples, logging on the Pi';
+ if(s.series&&s.series.length>1){strip($('#strip'),s.series,1,win,0.6,true);spark($('#sp'),s.series,2,0.05);var v=vspeed(s.series);if(v!=null)$('#vs').firstChild.nodeValue=(v>=0.005?'+':v<=-0.005?'\u2212':'')+Math.abs(v).toFixed(2)}
+ $('#say').dataset.tone=s.fc.tone;$('#say').textContent=s.fc.title;$('#why').textContent=s.fc.text;
+ var r=s.rate3;
+ $('#rate').textContent=r==null?('Building a trend: '+s.minutes+' of 5 minutes'):(sfmt(r,1)+' hPa per 3 hours');
+ ruler(r);
+ var D=s.dist||0,lv=D<0.03?['calm','good']:D<0.1?['light','idle']:D<0.3?['rough','warn']:['violent','bad'];
+ $('#m1').textContent=lv[0];$('#m1').dataset.tone=lv[1];
+ $('#c1').textContent=D.toFixed(3)+' hPa over 2 s, peak '+(s.dist_max||0).toFixed(2);
+ if(s.hover!=null){$('#m2').textContent='\u00b1'+s.hover.toFixed(2)+' m';$('#c2').textContent='last 10 s'+(s.hover_best!=null?', best \u00b1'+s.hover_best.toFixed(2)+' m':'')}
+ else{$('#m2').textContent='not holding';$('#c2').textContent=s.hover_best!=null?'best hold \u00b1'+s.hover_best.toFixed(2)+' m':'hold still above 0.5 m for 10 s'}
+ $('#m3').textContent=sfmt(s.vmax||0,2)+' m/s';$('#c3').textContent='max sink '+sfmt(s.vmin||0,2)+' m/s';
+ $('#m4').textContent=(s.up||0).toFixed(1)+' m up';$('#c4').textContent=(s.down||0).toFixed(1)+' m down';
+ $('#m5').textContent=mmss(s.aloft||0);$('#c5').textContent=s.airborne?'airborne now':'on the ground';
+ if(s.vs!=null)$('#vs').firstChild.nodeValue=(s.vs>=0.005?'+':s.vs<=-0.005?'\u2212':'')+Math.abs(s.vs).toFixed(2);
+}
+function renderProf(){
+ if(!prof||prof.length<2)return;
+ strip($('#pstrip'),prof,2,1200,0.1,false);
+}
+async function getJSON(u,o){var r=await fetch(u,o);return r.json()}
+async function tick(){
+ if(frozen)return;
+ try{last=await getJSON('/api/state?w='+win,{cache:'no-store'});renderMain(last)}
+ catch(e){$('#state').textContent='No signal from the Pi'}
+}
+async function tickProf(){
+ if(frozen)return;
+ try{var s=await getJSON('/api/state?w=1200',{cache:'no-store'});if(s.series){prof=s.series;renderProf()}}catch(e){}
+}
+async function tickSum(){
+ try{var j=await getJSON('/api/summary',{method:'POST'});$('#plain').textContent=j.text}catch(e){}
+}
+document.querySelectorAll('#win button').forEach(function(b){b.onclick=function(){
+ document.querySelectorAll('#win button').forEach(function(x){x.setAttribute('aria-pressed','false')});
+ b.setAttribute('aria-pressed','true');win=+b.dataset.w;tick()}});
+$('#zero').onclick=async function(){await fetch('/api/zero',{method:'POST'});prof=null;tick();tickProf()};
+$('#pause').onclick=function(){frozen=!frozen;this.textContent=frozen?'Resume':'Pause'};
+var rz=0;window.addEventListener('resize',function(){cancelAnimationFrame(rz);rz=requestAnimationFrame(function(){if(last)renderMain(last);renderProf()})});
+setInterval(tick,1000);setInterval(tickProf,3000);setInterval(tickSum,15000);
+tick();tickProf();tickSum();
+})();
+</script>
+</body>
+</html>

@@ -3,8 +3,8 @@
 A Raspberry Pi 5 + barometer payload for drones. It turns air pressure into live altitude, climb rate, turbulence and hover quality, and shows it all on a dashboard that works with no internet.
 
 Built at Cal Hacks 13.0.
+<img width="1408" height="790" alt="Screenshot 2026-10-24 at 1 49 47 AM" src="https://github.com/user-attachments/assets/60c8e020-3b93-4041-a883-c653983cbdea" />
 
-![Uploading Screenshot 2026-10-24 at 1.49.38 AM.png…]()
 
 
 ## What it does

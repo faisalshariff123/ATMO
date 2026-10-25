@@ -38,13 +38,6 @@ bash deploy/setup.sh
 ```
 Set your own hotspot password in `deploy/setup.sh` first. Then open `http://<pi-ip>:8000`.
 
-Manual run:
-```bash
-python -m venv --system-site-packages .
-./bin/pip install -r requirements.txt
-./bin/uvicorn app:app --host 0.0.0.0 --port 8000
-```
-
 ## Files
 - `app.py`: sensor sampling, filtering, metrics, API
 - `static/index.html`: the dashboard (one file, no CDN)
